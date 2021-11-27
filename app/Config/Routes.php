@@ -38,12 +38,25 @@ $routes->setAutoRoute(false);
 // route since we don't have to scan directories.
 //$routes->get('/', 'Home::index');
 
-$routes->get('/', 'App\Controllers\Api\UserController::index');
+$routes->get('/test', 'App\Controllers\Api\UserController::index');
 
 $routes->group("/api", ["namespace" => "App\Controllers\Api"] , function($routes){
+    
     $routes->group("user", function($routes){
-
        $routes->get("list", "UserController::index");
+       $routes->get("single/(:num)", "UserController::show/$1");
+    });
+
+    $routes->group("centro", function($routes){
+        $routes->get("list", "CentroController::index");
+        $routes->get("single/(:num)", "CentroController::show/$1");
+    });
+
+    $routes->group("producto", function($routes){
+        $routes->get("list", "ProductoController::index");
+        $routes->get("single/(:num)", "ProductoController::show/$1");
+        $routes->get("code/(:any)", "ProductoController::showByCode/$1");
+        $routes->get("description/(:any)", "ProductoController::showByDescription/$1");
     });
      
 });

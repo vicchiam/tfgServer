@@ -1,17 +1,10 @@
 <?php
 
-/*
-    Run 
-    php spark migrate
-    Create file
-    php spark make:migration (name) 
-*/
-
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class Users extends Migration
+class Producto extends Migration
 {
     public function up()
     {
@@ -22,32 +15,20 @@ class Users extends Migration
                 'unsigned' => true,
                 'auto_increment' => true
             ],
-            'username' => [
-                'type' => 'VARCHAR',
-                'constraint' => 50,
+            'codigo' => [
+                'type' => 'INT',
+                'constraint' => 6,
                 'unique' => true
             ],
-            'name' => [
-                'type' => 'VARCHAR',
-                'constraint' => 100
-            ],
-            'email' => [
-                'type' => 'VARCHAR',
-                'constraint' => 100
-            ],
-            'password' => [
+            'descripcion' => [
                 'type' => 'VARCHAR',
                 'constraint' => 200
-            ],
-            'type' => [
-                'type' => 'TINYINT',
-                'constraint' => 1
             ],
             'created_at datetime default current_timestamp',
             'updated_at datetime default current_timestamp on update current_timestamp', 
         ]);
         $this->forge->addKey('id', true);
-        $this->forge->createTable('users');
+        $this->forge->createTable('productos');
     }
 
     public function down()

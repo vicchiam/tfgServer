@@ -9,7 +9,11 @@ class DatabaseSeeder extends Seeder
 
     public function run()
     {
-        $this->call('UserSeeder');        
+        $this->call('UserSeeder'); 
+        $this->call('CentroSeeder');
+        $this->call('ProductoSeeder');        
     }
 
 }
+
+

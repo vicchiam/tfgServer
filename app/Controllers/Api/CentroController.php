@@ -1,18 +1,13 @@
 <?php
-/*
-    Create file
-    php spark make:controller (name) --restful
-*/
 
 namespace App\Controllers\Api;
 
 use CodeIgniter\RESTful\ResourceController;
 
-use App\Models\User;
+use App\Models\Centro;
 
-class UserController extends ResourceController
+class CentroController extends ResourceController
 {
-
     /**
      * Return an array of resource objects, themselves in array format
      *
@@ -20,14 +15,14 @@ class UserController extends ResourceController
      */
     public function index()
     {
-        $user = new User();
+        $centro = new Centro();
 
         return $this->respondCreated([
 			'status' => 200,
 			"error" => false,
-			'messages' => 'User list',
-			'data' => $user
-                ->orderBy('username', 'asc')
+			'messages' => 'Centro list',
+			'data' => $centro
+                ->orderBy('nombre', 'asc')
                 ->findAll()
 		]);
     }
@@ -39,26 +34,26 @@ class UserController extends ResourceController
      */
     public function show($id = null)
     {
-        $user = new User();
+        $centro = new Centro();
 
-        $data = $user->find($id);
+        $data = $centro->find($id);
 
         if( empty($data) ){
             return $this->respondCreated([
                 'status' => 500,
                 'error' => true,
-                'messages' => 'User not found',
+                'messages' => 'Centro not found',
                 'data' => []
-            ]);          
+            ]);
         }
 
         return $this->respondCreated([
             'status' => 200,
             'error' => false,
-            'messages' => 'Single User data',
+            'messages' => 'Single Centro data',
             'data' => $data
         ]);
 
     }
-    
+
 }
