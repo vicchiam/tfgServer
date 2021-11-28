@@ -40,11 +40,14 @@ $routes->setAutoRoute(false);
 
 $routes->get('/test', 'App\Controllers\Api\UserController::index');
 
-$routes->group("/api", ["namespace" => "App\Controllers\Api"] , function($routes){
+$routes->post('login', 'App\Controllers\Api\LoginController::index');
+
+$routes->group("/api", ["namespace" => "App\Controllers\Api", 'filter' => 'auth'] , function($routes){
     
     $routes->group("user", function($routes){
        $routes->get("list", "UserController::index");
        $routes->get("single/(:num)", "UserController::show/$1");
+       //$routes->get("test", "UserController::auth");
     });
 
     $routes->group("centro", function($routes){

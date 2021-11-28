@@ -50,12 +50,12 @@ class User extends Model
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
 
-    protected function hiddenPassword(array $data){
+    protected function hiddenPassword(array $data){        
 
-        if(isset($data['id'])){
+        if($data['method']=='find'){
             unset($data['data']['password']);
         }
-        else{
+        if($data['method']=='findAll'){
             foreach($data['data'] as $key => $d){
                 unset($data['data'][$key]['password']);
             }

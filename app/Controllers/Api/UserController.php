@@ -8,6 +8,9 @@ namespace App\Controllers\Api;
 
 use CodeIgniter\RESTful\ResourceController;
 
+//use CodeIgniter\API\ResponseTrait;
+//use Firebase\JWT\JWT;
+
 use App\Models\User;
 
 class UserController extends ResourceController
@@ -60,5 +63,28 @@ class UserController extends ResourceController
         ]);
 
     }
+
+    /*
+    use ResponseTrait;
+    public function auth(){
+
+        $key = getenv('JWT_TOKEN_SECRET');
+        $header = $this->request->getServer('HTTP_AUTHORIZATION');
+
+        if(!$header) return $this->failUnauthorized('Token Required');
+        $token = explode(' ', $header)[1];
+
+        try {
+            $decoded = JWT::decode($token, $key, ['HS256']);
+            $response = [
+                'id' => $decoded->uid,
+                'email' => $decoded->email
+            ];
+            return $this->respond($response);
+        } catch (\Throwable $th) {
+            return $this->fail('Invalid Token');
+        }
+    }
+    */
     
 }
