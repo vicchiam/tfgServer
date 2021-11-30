@@ -61,6 +61,14 @@ $routes->group("/api", ["namespace" => "App\Controllers\Api", 'filter' => 'auth'
         $routes->get("code/(:any)", "ProductoController::showByCode/$1");
         $routes->get("description/(:any)", "ProductoController::showByDescription/$1");
     });
+
+    $routes->group("instalacion", function($routes){
+        $routes->get("list", "InstalacionController::index");
+        $routes->get("single/(:num)", "InstalacionController::show/$1");
+        $routes->get("code/(:any)", "InstalacionController::showByCode/$1");
+        $routes->get("description/(:any)", "InstalacionController::showByDescription/$1");
+        $routes->get("centro/(:any)", "InstalacionController::showByCentro/$1");
+    });
      
 });
 
