@@ -1,19 +1,13 @@
 <?php
 
-/*
-    php spark make:model (name)
-
-    type (0,Administrador), (1,Operario), (2,Tecnico)
-*/
-
 namespace App\Models;
 
 use CodeIgniter\Model;
 
-class User extends Model
+class Orden extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'users';
+    protected $table            = 'ordenes';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $insertID         = 0;
@@ -21,11 +15,19 @@ class User extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'username',
-        'name',
-        'email',
-        'password',
-        'type'
+        'tipo',
+        'solicitante_id',
+        'centro_id',
+        'ubicacion_id',        
+        'maq_inst',    
+        'maquina_id',
+        'instalacion_id',
+        'averia',
+        'trabajo',    
+        'fecha_inicio',
+        'fecha_fin',
+        'parada',
+        'estado'
     ];
 
     // Dates
@@ -48,21 +50,7 @@ class User extends Model
     protected $beforeUpdate   = [];
     protected $afterUpdate    = [];
     protected $beforeFind     = [];
-    protected $afterFind      = ['hiddenPassword'];
+    protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
-
-    protected function hiddenPassword(array $data){        
-
-        if($data['method']=='find'){
-            unset($data['data']['password']);
-        }
-        if($data['method']=='findAll'){
-            foreach($data['data'] as $key => $d){
-                unset($data['data'][$key]['password']);
-            }
-        }
-        return $data;
-    }
-
 }

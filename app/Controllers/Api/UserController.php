@@ -64,6 +64,21 @@ class UserController extends ResourceController
 
     }
 
+    public function showByType($type)
+    {
+        $user = new User();
+
+        return $this->respondCreated([
+            'status' => 200,
+            "error" => false,
+            'messages' => 'User by type',
+            'data' => $user
+                ->where('type',$type)
+                ->orderBy('username')
+                ->findAll()
+        ]);
+    }
+
     /*
     use ResponseTrait;
     public function auth(){

@@ -55,6 +55,16 @@ $routes->group("/api", ["namespace" => "App\Controllers\Api", 'filter' => 'auth'
         $routes->get("single/(:num)", "CentroController::show/$1");
     });
 
+    $routes->group("ubicacion", function($routes){
+        $routes->get("list", "UbicacionController::index");
+        $routes->get("single/(:num)", "UbicacionController::show/$1");
+    });
+
+    $routes->group("maquina", function($routes){
+        $routes->get("list", "MaquinaController::index");
+        $routes->get("single/(:num)", "MaquinaController::show/$1");
+    });
+
     $routes->group("producto", function($routes){
         $routes->get("list", "ProductoController::index");
         $routes->get("single/(:num)", "ProductoController::show/$1");
@@ -70,6 +80,26 @@ $routes->group("/api", ["namespace" => "App\Controllers\Api", 'filter' => 'auth'
         $routes->get("centro/(:any)", "InstalacionController::showByCentro/$1");
     });
      
+    $routes->group("inventario", function($routes){
+        $routes->get("list", "InventarioController::index");
+        $routes->get("single/(:num)", "InventarioController::show/$1");
+        $routes->get("producto/(:any)", "InventarioController::showByProducto/$1");
+        $routes->post("add", "InventarioController::add");
+        $routes->post("substract", "InventarioController::substract");
+    });
+
+    $routes->group("falta", function($routes){
+        $routes->get("list", "FaltaController::index");
+        $routes->get("single/(:num)", "FaltaController::show/$1");
+        $routes->get("date/(:any)", "FaltaController::showByFecha/$1");
+        $routes->put("update/(:num)", "FaltaController::update/$1");
+        $routes->delete("delete/(:num)", "FaltaController::delete/$1");
+        $routes->get("producto/list/(:num)", "FaltaController::showProductos/$1");
+        $routes->post("producto/add", "FaltaController::addProducto");
+        $routes->put("producto/update", "FaltaController::updateProducto");
+        $routes->delete("producto/delete/(:num)", "FaltaController::deleteProducto/$1");
+    });
+
 });
 
 
