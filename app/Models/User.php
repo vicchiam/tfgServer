@@ -57,6 +57,9 @@ class User extends Model
         if($data['method']=='find'){
             unset($data['data']['password']);
         }
+        if($data['method']=='first'){
+            unset($data['password']);
+        }
         if($data['method']=='findAll'){
             foreach($data['data'] as $key => $d){
                 unset($data['data'][$key]['password']);

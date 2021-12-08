@@ -55,53 +55,63 @@ class MaquinaController extends ResourceController
         ]);
     }
 
-    /**
-     * Return a new resource object, with default properties
-     *
-     * @return mixed
-     */
-    public function new()
-    {
-        //
+    public function showByDescription($description = null){
+        $db = \Config\Database::connect();
+
+        $sql="
+            select
+                id,
+                descripcion,
+                ubicacion_id
+            from
+                maquinas
+            where
+                descripcion like '%".
+                $db->escapeLikeString($description).
+                "%' ESCAPE '!'
+        ";
+
+        $query   = $db->query($sql);
+        $results = $query->getResultArray();
+
+        return $this->respondCreated([
+			'status' => 200,
+			"error" => false,
+			'messages' => 'Maquina like description list',
+			'data' => $results
+		]);
     }
 
-    /**
-     * Create a new resource object, from "posted" parameters
-     *
-     * @return mixed
-     */
-    public function create()
-    {
-        //
+    public function showByDescriptionUbicacion($description = null, $ubicacion_id){
+        if($description=='*'){
+            $description='';
+        }
+
+        $db = \Config\Database::connect();
+
+        $sql="
+            select
+                id,
+                descripcion,
+                ubicacion_id
+            from
+                maquinas
+            where
+                descripcion like '%".
+                $db->escapeLikeString($description).
+                "%' ESCAPE '!'
+                and ubicacion_id= ?
+        ";
+
+        $query   = $db->query($sql, $ubicacion_id);
+        $results = $query->getResultArray();
+
+        return $this->respondCreated([
+			'status' => 200,
+			"error" => false,
+			'messages' => 'Ubicacion like description list',
+			'data' => $results
+		]);
     }
 
-    /**
-     * Return the editable properties of a resource object
-     *
-     * @return mixed
-     */
-    public function edit($id = null)
-    {
-        //
-    }
-
-    /**
-     * Add or update a model resource, from "posted" properties
-     *
-     * @return mixed
-     */
-    public function update($id = null)
-    {
-        //
-    }
-
-    /**
-     * Delete the designated resource object from the model
-     *
-     * @return mixed
-     */
-    public function delete($id = null)
-    {
-        //
-    }
 }

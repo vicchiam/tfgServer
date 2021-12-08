@@ -19,9 +19,13 @@ class DatabaseSeeder extends Seeder
         $this->call('FaltaSeeder');
         $this->call('FaltaProductoSeeder');
         $this->call('UbicacionSeeder');
-        $this->call('MaquinaSeeder');
+        $this->call('MaquinaSeeder');        
+        
+        $this->call('OrdenSeeder');        
         */
-        $this->call('OrdenSeeder');
+        $this->call('OrdenTecnicosSeeder');        
+        $this->call('OrdenProductosSeeder');
+        
         $this->db->enableForeignKeyChecks();        
     }
 

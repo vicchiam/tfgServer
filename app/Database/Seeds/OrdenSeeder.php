@@ -33,25 +33,36 @@ class OrdenSeeder extends Seeder
         $instalacion = new Instalacion();
         $instalaciones = count($instalacion->findAll());
 
-        $ini=static::faker()->dateTimeThisYear('+ 2 month')->format('Y-m-d');
+        $ini=static::faker()->dateTimeThisYear('+ 2 month')->format('Y-m-d');        
         for($i=0; $i<100; $i++){
-            $days=static::faker()->numberBetween(0,30);            
-            $dateIni = date('Y-m-d', strtotime($ini. ' + '.$i.' days'));
-            $dateFin = date('Y-m-d', strtotime($dateIni. ' + '.$days.' days'));
+            $estado=static::faker()->numberBetween(0,5);
+            if($estado==5) $estado=99;
+
+            $dateIni=null;
+            $dateFin=null;
+            $trabajo='';
+            if($estado>=1 && $estado<90){
+                $dateIni = date('Y-m-d', strtotime($ini. ' + '.$i.' days'));
+            }
+            if($estado>=2 && $estado<90){
+                $days=static::faker()->numberBetween(0,30);                        
+                $dateFin = date('Y-m-d', strtotime($dateIni. ' + '.$days.' days'));
+                $trabajo=static::faker()->paragraph(8, false);
+            }            
             $model->insert([
                 'tipo' => static::faker()->numberBetween(1,4),
                 'solicitante_id' => static::faker()->numberBetween(1,$usuarios),
                 'centro_id' => static::faker()->numberBetween(1,$centros),
                 'ubicacion_id' => static::faker()->numberBetween(1,$ubicaciones),                
-                'maq_inst' => ($i%3==0)? 1 : 0,
-                'maquina_id' => ($i%3==0)? null : static::faker()->numberBetween(1,$maquinas),
-                'instalacion_id' => ($i%3==0) ? static::faker()->numberBetween(1,$instalaciones) : null,
+                'maq_inst' => ($i%4==0)? 1 : 0,
+                'maquina_id' => ($i%4==0)? null : static::faker()->numberBetween(1,$maquinas),
+                'instalacion_id' => ($i%4==0) ? static::faker()->numberBetween(1,$instalaciones) : null,
                 'averia' => static::faker()->paragraph(5, false),
-                'trabajo' => static::faker()->paragraph(8, false),
+                'trabajo' => $trabajo,
                 'fecha_inicio' => $dateIni,
                 'fecha_fin' => $dateFin,
                 'parada' => static::faker()->numberBetween(0,480),
-                'estado' => static::faker()->numberBetween(0,5),
+                'estado' => $estado
             ]);
         }
 

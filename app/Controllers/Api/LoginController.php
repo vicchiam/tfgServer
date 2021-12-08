@@ -45,11 +45,16 @@ class LoginController extends ResourceController
  
         $token = JWT::encode($payload, $key);
 
+        $data = [
+            'user' => $user,
+            'token' => $token
+        ];
+
         return $this->respondCreated([
 			'status' => 200,
 			"error" => false,
 			'messages' => 'Login success',
-			'data' => $token
+			'data' => $data
 		]);
     }
 

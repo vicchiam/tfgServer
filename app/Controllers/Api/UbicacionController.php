@@ -55,5 +55,64 @@ class UbicacionController extends ResourceController
         ]);
     }
 
+    public function showByDescription($description = null){
+        $db = \Config\Database::connect();
+
+        $sql="
+            select
+                id,
+                descripcion,
+                centro_id
+            from
+                instalaciones
+            where
+                descripcion like '%".
+                $db->escapeLikeString($description).
+                "%' ESCAPE '!'
+        ";
+
+        $query   = $db->query($sql);
+        $results = $query->getResultArray();
+
+        return $this->respondCreated([
+			'status' => 200,
+			"error" => false,
+			'messages' => 'Ubicacion like description list',
+			'data' => $results
+		]);
+    }
+
+    public function showByDescriptionCentro($description = null, $centro_id){
+        if($description=='*'){
+            $description='';
+        }
+        
+        $db = \Config\Database::connect();
+
+        $sql="
+            select
+                id,
+                descripcion,
+                centro_id
+            from
+                instalaciones
+            where
+                descripcion like '%".
+                $db->escapeLikeString($description).
+                "%' ESCAPE '!'
+                and centro_id= ?
+        ";
+
+        $query   = $db->query($sql, $centro_id);
+        $results = $query->getResultArray();
+
+        return $this->respondCreated([
+			'status' => 200,
+			"error" => false,
+			'messages' => 'Ubicacion like description list',
+			'data' => $results
+		]);
+    }
+
     
 }

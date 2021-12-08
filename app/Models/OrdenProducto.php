@@ -4,15 +4,10 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-/*
-    Estados
-    0-> Pendiente , 1-> Iniciada, 2-> Finalizada, 3-> Validada, 4-> Rechazada, 99-> Descartada  
-*/
-
-class Orden extends Model
+class OrdenProducto extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'ordenes';
+    protected $table            = 'orden_productos';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $insertID         = 0;
@@ -20,19 +15,9 @@ class Orden extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'tipo',
-        'solicitante_id',
-        'centro_id',
-        'ubicacion_id',        
-        'maq_inst',    
-        'maquina_id',
-        'instalacion_id',
-        'averia',
-        'trabajo',    
-        'fecha_inicio',
-        'fecha_fin',
-        'parada',
-        'estado'
+        'orden_id',
+        'producto_id',
+        'cantidad'
     ];
 
     // Dates

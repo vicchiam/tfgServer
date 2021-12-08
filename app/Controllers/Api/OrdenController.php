@@ -1,0 +1,445 @@
+<?php
+
+namespace App\Controllers\Api;
+
+use CodeIgniter\RESTful\ResourceController;
+
+use App\Models\Orden;
+use App\Models\OrdenTecnico;
+use App\Models\OrdenProducto;
+
+class OrdenController extends ResourceController
+{
+    /**
+     * Return an array of resource objects, themselves in array format
+     *
+     * @return mixed
+     */
+    public function index()
+    {
+        $orden = new Orden();
+
+        return $this->respondCreated([
+			'status' => 200,
+			"error" => false,
+			'messages' => 'Ordenes list',
+			'data' => $orden
+                ->findAll()
+		]);
+    }
+
+    /**
+     * Return the properties of a resource object
+     *
+     * @return mixed
+     */
+    public function show($id = null)
+    {
+        $orden = new Orden();
+
+        $data = $orden->find($id);
+
+        if( empty($data) )
+            return $this->error('Orden not found');        
+
+        return $this->respondCreated([
+            'status' => 200,
+            'error' => false,
+            'messages' => 'Single Orden data',
+            'data' => $data
+        ]);
+    }
+
+    public function showBySolicitanteFecha($solicitante_id, $fecha)
+    {
+        $orden = new Orden();
+
+        $data = $orden
+            ->where('solicitante_id', $solicitante_id)
+            ->where('created_at >=', $fecha)
+            ->find($id);
+
+        if( empty($data) )
+            return $this->error('Orden not found');        
+
+        return $this->respondCreated([
+            'status' => 200,
+            'error' => false,
+            'messages' => 'Single Orden data',
+            'data' => $data
+        ]);
+    }
+
+    public function showByFecha($fecha)
+    {
+        $orden = new Orden();
+
+        return $this->exito(
+            'Orden by fecha list',
+            $orden
+                ->where('created_at >',$fecha)
+                ->findAll()
+            );
+    }
+
+    /**
+     * Create a new resource object, from "posted" parameters
+     *
+     * @return mixed
+     */
+    public function create()
+    {
+        helper(['form']);
+        $rules = [
+            'tipo' => 'required',
+            'solicitante_id' => 'required',
+            'centro_id' => 'required',
+            'ubicacion_id' => 'required',
+            'maq_inst' => 'required',
+            'maquina_id' => 'required',
+            'instalacion_id' => 'required',
+            'averia' => 'required',
+            'trabajo' => 'required',
+            'fecha_inicio' => 'required',
+            'fecha_fin' => 'required',
+            'parada' => 'required',
+            'estado' => 'required'
+        ];
+        if(!$this->validate($rules)) 
+            return $this->fail($this->validator->getErrors());
+
+        $tipo = $this->request->getVar('tipo');
+        $solicitante_id = $this->request->getVar('solicitante_id');
+        $centro_id = $this->request->getVar('centro_id');
+        $ubicacion_id = $this->request->getVar('ubicacion_id');
+        $maq_inst = $this->request->getVar('maq_inst');
+        $maquina_id = $this->request->getVar('maquina_id');
+        $instalacion_id = $this->request->getVar('instalacion_id');
+        $averia = $this->request->getVar('averia');
+        $trabajo = $this->request->getVar('trabajo');
+        $fecha_inicio = $this->request->getVar('fecha_inicio');
+        $fecha_fin = $this->request->getVar('fecha_fin');
+        $parada = $this->request->getVar('parada');
+        $estado = $this->request->getVar('estado');
+
+        $orden = new Orden();
+
+        $data = [
+            'tipo' => $tipo,
+            'solicitante_id' => $solicitante_id,
+            'centro_id' => $centro_id,
+            'ubicacion_id' => $ubicacion_id,
+            'maq_inst' => $maq_inst,
+            'maquina_id' => $maquina_id,
+            'instalacion_id' => $instalacion_id,
+            'averia' => $averia,
+            'trabajo' => $trabajo,
+            'fecha_inicio' => $fecha_inicio,
+            'fecha_fin' => $fecha_fin,
+            'parada' => $parada,
+            'estado' => $estado
+        ];
+
+        $result = $falta->insert($data);
+        if( !$result )
+            return $this->error('Error al guardar la orden '.$id);
+        return $this->exito('Orden guardada',$result);
+    }
+
+    /**
+     * Add or update a model resource, from "posted" properties
+     *
+     * @return mixed
+     */
+    public function update($id = null)
+    {
+        helper(['form']);
+        $rules = [
+            'tipo' => 'required',
+            'solicitante_id' => 'required',
+            'centro_id' => 'required',
+            'ubicacion_id' => 'required',
+            'maq_inst' => 'required',
+            'maquina_id' => 'required',
+            'instalacion_id' => 'required',
+            'averia' => 'required',
+            'trabajo' => 'required',
+            'fecha_inicio' => 'required',
+            'fecha_fin' => 'required',
+            'parada' => 'required',
+            'estado' => 'required'
+        ];
+        if(!$this->validate($rules)) 
+            return $this->fail($this->validator->getErrors());
+
+        $tipo = $this->request->getVar('tipo');
+        $solicitante_id = $this->request->getVar('solicitante_id');
+        $centro_id = $this->request->getVar('centro_id');
+        $ubicacion_id = $this->request->getVar('ubicacion_id');
+        $maq_inst = $this->request->getVar('maq_inst');
+        $maquina_id = $this->request->getVar('maquina_id');
+        $instalacion_id = $this->request->getVar('instalacion_id');
+        $averia = $this->request->getVar('averia');
+        $trabajo = $this->request->getVar('trabajo');
+        $fecha_inicio = $this->request->getVar('fecha_inicio');
+        $fecha_fin = $this->request->getVar('fecha_fin');
+        $parada = $this->request->getVar('parada');
+        $estado = $this->request->getVar('estado');
+
+        $orden = new Orden();
+
+        $data = [
+            'tipo' => $tipo,
+            'solicitante_id' => $solicitante_id,
+            'centro_id' => $centro_id,
+            'ubicacion_id' => $ubicacion_id,
+            'maq_inst' => $maq_inst,
+            'maquina_id' => $maquina_id,
+            'instalacion_id' => $instalacion_id,
+            'averia' => $averia,
+            'trabajo' => $trabajo,
+            'fecha_inicio' => $fecha_inicio,
+            'fecha_fin' => $fecha_fin,
+            'parada' => $parada,
+            'estado' => $estado
+        ];
+
+        $result = $falta->update($id,$data);
+        if( !$result )
+            return $this->error('Error al guardar la orden '.$id);
+        return $this->exito('Orden guardada',$result);
+    }
+
+    /**
+     * Delete the designated resource object from the model
+     *
+     * @return mixed
+     */
+    public function delete($id = null)
+    {
+        //
+    }
+
+    public function showTecnicos($orden_id = null)
+    {
+        $db = \Config\Database::connect();
+
+        $sql="
+            select
+                t.id,
+                u.name,
+                t.user_id,
+                t.fecha,
+                t.minutos
+            from
+                orden_tecnicos t
+                left join
+                users u
+                on
+                    u.id=t.user_id
+            where
+                t.orden_id = ?
+        ";
+
+        $query   = $db->query($sql, $orden_id);
+        $results = $query->getResultArray();
+
+        return $this->exito('Listado de tecnicos de la orden: '.$orden_id, $results);
+    }
+
+    public function addTecnico()
+    {
+        helper(['form']);
+        $rules = [
+            'orden_id' => 'required',
+            'user_id' => 'required',
+            'fecha' => 'required',
+            'minutos' => 'required'
+        ];
+        if(!$this->validate($rules)) 
+            return $this->fail($this->validator->getErrors());
+
+        $orden_id = $this->request->getVar('orden_id');
+        $user_id = $this->request->getVar('user_id');
+        $fecha = $this->request->getVar('fecha');
+        $minutos = $this->request->getVar('minutos');
+
+        if( $minutos < 0 )
+            return $this->error('Los minutos no pueden ser menor que 0 y es '.$minutos);
+
+        $ordenTecnico = new OrdenTecnico();
+
+        $data = [
+            'orden_id' => $orden_id,
+            'user_id' => $user_id,
+            'fecha' => $fecha,
+            'minutos' => $minutos
+        ];       
+
+        $result = $ordenTecnico->insert($data);
+        return $this->exito('Tecnico guardado', $result);
+    }
+
+    public function updateTecnico($orden_id = null)
+    {
+        helper(['form']);
+        $rules = [
+            'orden_id' => 'required',
+            'user_id' => 'required',
+            'fecha' => 'required',
+            'minutos' => 'required'
+        ];
+        if(!$this->validate($rules)) 
+            return $this->fail($this->validator->getErrors());
+
+        $orden_id = $this->request->getVar('orden_id');
+        $user_id = $this->request->getVar('user_id');
+        $fecha = $this->request->getVar('fecha');
+        $minutos = $this->request->getVar('minutos');
+
+        if( $minutos < 0 )
+            return $this->error('Los minutos no pueden ser menor que 0 y es '.$minutos);
+
+        $ordenTecnico = new OrdenTecnico();
+
+        $data = [
+            'orden_id' => $orden_id,
+            'user_id' => $user_id,
+            'fecha' => $fecha,
+            'minutos' => $minutos
+        ];       
+
+        $result = $ordenTecnico->update($orden_id, $data);
+        return $this->exito('Tecnico guardado', $result);
+    }
+
+    public function deleteTecnico($id = null)
+    {
+        $ordenTecnico = new OrdenTecnico();
+
+        $result = $ordenTecnico->delete($id);
+
+        if( !$result )
+            return $this->error('Error al eliminar '.$id.' -> '.$result);
+        
+        return $this->exito('Eliminado correctamente', $result);
+    }
+
+    public function showProductos($orden_id = null){
+        $db = \Config\Database::connect();
+
+        $sql="
+            select
+                t.id,
+                p.codigo,
+                p.descripcion,
+                t.producto_id,
+                t.cantidad
+            from
+                orden_productos t
+                left join
+                productos p
+                on
+                    p.id=t.producto_id
+            where
+                t.orden_id = ?
+        ";
+
+        $query   = $db->query($sql, $orden_id);
+        $results = $query->getResultArray();
+
+        return $this->exito('Listado de productos de la orden: '.$orden_id, $results);
+    }
+
+    public function addProducto()
+    {
+        helper(['form']);
+        $rules = [
+            'orden_id' => 'required',
+            'producto_id' => 'required',
+            'cantidad' => 'required'
+        ];
+        if(!$this->validate($rules)) 
+            return $this->fail($this->validator->getErrors());
+
+        $orden_id = $this->request->getVar('orden_id');
+        $producto_id = $this->request->getVar('producto_id');        
+        $cantidad = $this->request->getVar('cantidad');
+
+        if( $cantidad < 0 )
+            return $this->error('La cantidad no pueden ser menor que 0 y es '.$cantidad);
+
+        $ordenProducto = new OrdenTecnico();
+
+        $data = [
+            'orden_id' => $orden_id,
+            'producto_id' => $user_id,            
+            'cantidad' => $cantidad
+        ];       
+
+        $result = $ordenProducto->insert($data);
+        return $this->exito('Producto guardado', $result);
+    }
+
+    public function updateProducto($orden_id = null)
+    {
+        helper(['form']);
+        $rules = [
+            'orden_id' => 'required',
+            'producto_id' => 'required',
+            'cantidad' => 'required'
+        ];
+        if(!$this->validate($rules)) 
+            return $this->fail($this->validator->getErrors());
+
+        $orden_id = $this->request->getVar('orden_id');
+        $producto_id = $this->request->getVar('producto_id');        
+        $cantidad = $this->request->getVar('cantidad');
+
+        if( $cantidad < 0 )
+            return $this->error('La cantidad no pueden ser menor que 0 y es '.$cantidad);
+
+        $ordenProducto = new OrdenTecnico();
+
+        $data = [
+            'orden_id' => $orden_id,
+            'producto_id' => $user_id,            
+            'cantidad' => $cantidad
+        ];       
+
+        $result = $ordenProducto->update($orden_id, $data);
+        return $this->exito('Producto guardado', $result);
+    }
+
+    public function deleteProducto($id = null)
+    {
+        $ordenProducto = new OrdenProducto();
+
+        $result = $ordenProducto->delete($id);
+
+        if( !$result )
+            return $this->error('Error al eliminar '.$id.' -> '.$result);
+        
+        return $this->exito('Eliminado correctamente', $result);
+    }
+
+    private function error($msg)
+    {
+        return $this->respondCreated([
+            'status' => 500,
+            'error' => true,
+            'messages' => $msg,
+            'data' => []
+        ]);
+    }
+
+    private function exito($msg, $data){
+        return $this->respondCreated([
+            'status' => 200,
+            'error' => false,
+            'messages' => $msg,
+            'data' => $data
+        ]);
+    }
+
+}

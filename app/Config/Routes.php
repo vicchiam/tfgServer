@@ -58,11 +58,13 @@ $routes->group("/api", ["namespace" => "App\Controllers\Api", 'filter' => 'auth'
     $routes->group("ubicacion", function($routes){
         $routes->get("list", "UbicacionController::index");
         $routes->get("single/(:num)", "UbicacionController::show/$1");
+        $routes->get("list/descripcion/centro/(:any)/(:any)", "UbicacionController::showByDescriptionCentro/$1/$2");
     });
 
     $routes->group("maquina", function($routes){
         $routes->get("list", "MaquinaController::index");
         $routes->get("single/(:num)", "MaquinaController::show/$1");
+        $routes->get("list/descripcion/centro/(:any)/(:any)", "MaquinaController::showByDescriptionUbicacion/$1/$2");
     });
 
     $routes->group("producto", function($routes){
@@ -98,6 +100,22 @@ $routes->group("/api", ["namespace" => "App\Controllers\Api", 'filter' => 'auth'
         $routes->post("producto/add", "FaltaController::addProducto");
         $routes->put("producto/update", "FaltaController::updateProducto");
         $routes->delete("producto/delete/(:num)", "FaltaController::deleteProducto/$1");
+    });
+
+    $routes->group("orden", function($routes){
+        $routes->get("list", "OrdenController::index");
+        $routes->get("single/(:num)", "OrdenController::show/$1");   
+        $routes->get("date/(:any)", "OrdenController::showByFecha/$1");        
+        $routes->post('add',"OrdenController::create");
+        $routes->put('update/(:num)',"OrdenController::update/$1");
+        $routes->get("tecnicos/list/(:any)", "OrdenController::showTecnicos/$1");        
+        $routes->post("tecnicos/add","OrdenController::addTecnico");
+        $routes->put("tecnicos/update/(:num)","OrdenController::updateTecnico/$1");
+        $routes->delete("tecnicos/delete/(:num)","OrdenController::deleteTecnico/$1");
+        $routes->get("productos/list/(:any)", "OrdenController::showProductos/$1");
+        $routes->post("productos/add","OrdenController::addProducto");
+        $routes->put("productos/update/(:num)","OrdenController::updateProducto/$1");
+        $routes->delete("productos/delete/(:num)","OrdenController::deleteProducto/$1");        
     });
 
 });

@@ -56,6 +56,37 @@ class FaltaController extends ResourceController
     }
 
     /**
+     * Create a new resource object, from "posted" parameters
+     *
+     * @return mixed
+     */
+    public function create()
+    {
+        helper(['form']);
+        $rules = [
+            'solicitante_id' => 'required',
+            'centro_id' => 'required'
+        ];
+        if(!$this->validate($rules)) 
+            return $this->fail($this->validator->getErrors());
+
+        $solicitante_id = $this->request->getVar('solicitante_id');
+        $centro_id = $this->request->getVar('centro_id');
+
+        $falta = new Falta();
+
+        $data = [
+            'solicitante_id' => $solicitante_id,
+            'centro_id' => $centro_id
+        ];
+
+        $result = $falta->insert($data);
+        if( !$result )
+            return $this->error('Error al guardar la falta '.$id);
+        return $this->exito('Falta guardado',$result);
+    }
+
+    /**
      * Add or update a model resource, from "posted" properties
      *
      * @return mixed
@@ -125,7 +156,7 @@ class FaltaController extends ResourceController
         $cantidad = $this->request->getVar('cantidad');
 
         if( $cantidad < 0 )
-            return $this->error('La cantidad no puede ser mayor que 0 y es '.$cantidad);
+            return $this->error('La cantidad no puede ser menor que 0 y es '.$cantidad);
 
         $faltaProducto = new FaltaProducto();
 
@@ -134,11 +165,11 @@ class FaltaController extends ResourceController
             ->where('producto_id', $producto_id)
             ->first();
 
-            $data = [
-                'falta_id' => $falta_id,
-                'producto_id' => $producto_id,
-                'cantidad' => $cantidad
-            ];
+        $data = [
+            'falta_id' => $falta_id,
+            'producto_id' => $producto_id,
+            'cantidad' => $cantidad
+        ];
 
         if( $existe ){
             return $this->error('Este producto ya existe');
