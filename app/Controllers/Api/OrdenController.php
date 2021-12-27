@@ -35,51 +35,105 @@ class OrdenController extends ResourceController
      */
     public function show($id = null)
     {
-        $orden = new Orden();
+        $db = \Config\Database::connect();        
 
-        $data = $orden->find($id);
+        $sql="
+            select
+                o.*,
+                (select u.descripcion from ubicaciones u where u.id=o.ubicacion_id) as ubicacion_nom,
+                (select m.descripcion from maquinas m where m.id=o.maquina_id) as maquina_nom,
+                (select i.descripcion from instalaciones i where i.id=o.instalacion_id) as instalacion_nom
+            from
+                ordenes o
+            where
+                o.id= ?
+        ";
+        $query   = $db->query($sql, $id);
+        $results = $query->getResultArray();
 
-        if( empty($data) )
-            return $this->error('Orden not found');        
-
-        return $this->respondCreated([
-            'status' => 200,
-            'error' => false,
-            'messages' => 'Single Orden data',
-            'data' => $data
-        ]);
+        return $this->exito('Orden '.$id, $results[0]);
     }
 
-    public function showBySolicitanteFecha($solicitante_id, $fecha)
-    {
-        $orden = new Orden();
+    public function filter(){
+        helper(['form']);
+        $rules = [                     
+            'desde' => 'required',
+            'hasta' => 'required'
+        ];
+        if(!$this->validate($rules)) 
+            return $this->fail($this->validator->getErrors());
 
-        $data = $orden
-            ->where('solicitante_id', $solicitante_id)
-            ->where('created_at >=', $fecha)
-            ->find($id);
+        $tipo = $this->request->getVar('tipo');
+        $usuario = $this->request->getVar('usuario');
+        $centro = $this->request->getVar('centro');
+        $desde = $this->request->getVar('desde');
+        $hasta = $this->request->getVar('hasta');        
+        $estado = $this->request->getVar('estado');
 
-        if( empty($data) )
-            return $this->error('Orden not found');        
+        $db = \Config\Database::connect();
 
-        return $this->respondCreated([
-            'status' => 200,
-            'error' => false,
-            'messages' => 'Single Orden data',
-            'data' => $data
-        ]);
-    }
+        $where="";
+        $whereParams = [$desde, $hasta];
 
-    public function showByFecha($fecha)
-    {
-        $orden = new Orden();
+        if($tipo != ''){
+            $where.=" and o.tipo= ? ";
+            $whereParams[]=$tipo;
+        }
+        if($usuario != ''){
+            $where.=" and ( o.solicitante_id= ? or t.user_id= ? )";
+            $whereParams[]=$usuario;            
+            $whereParams[]=$usuario;
+        }
+        if($centro != ''){
+            $where.=" and o.centro_id= ? ";
+            $whereParams[]=$centro;
+        }
+        if($estado == '-1'){
+            $where.=" and o.estado<> ? ";
+            $whereParams[]=99;
+        }   
+        else if($estado != ''){
+            $where.=" and o.estado= ? ";
+            $whereParams[]=$estado;
+        }
+            
 
-        return $this->exito(
-            'Orden by fecha list',
-            $orden
-                ->where('created_at >',$fecha)
-                ->findAll()
-            );
+        $sql="
+            select
+                o.id,
+                o.solicitante_id,
+                o.tipo,
+                o.estado,
+                o.averia,
+                o.fecha_inicio,
+                o.created_at
+            from
+                ordenes o
+                left join
+                orden_tecnicos t
+                on
+                    t.orden_id = o.id                
+            where
+                o.created_at >= ? and
+                o.created_at <= ?
+                ".$where."
+            group by
+                o.id,
+                o.solicitante_id,
+                o.tipo,
+                o.estado,
+                o.averia,
+                o.fecha_inicio,
+                o.created_at
+            order by
+                o.created_at desc
+            limit 50
+        ";
+
+        $query   = $db->query($sql, $whereParams);
+        $results = $query->getResultArray();
+
+        return $this->exito('Listado de ordenes filtradas', $results);
     }
 
     /**
@@ -95,14 +149,8 @@ class OrdenController extends ResourceController
             'solicitante_id' => 'required',
             'centro_id' => 'required',
             'ubicacion_id' => 'required',
-            'maq_inst' => 'required',
-            'maquina_id' => 'required',
-            'instalacion_id' => 'required',
+            'maq_inst' => 'required',            
             'averia' => 'required',
-            'trabajo' => 'required',
-            'fecha_inicio' => 'required',
-            'fecha_fin' => 'required',
-            'parada' => 'required',
             'estado' => 'required'
         ];
         if(!$this->validate($rules)) 
@@ -133,14 +181,14 @@ class OrdenController extends ResourceController
             'maquina_id' => $maquina_id,
             'instalacion_id' => $instalacion_id,
             'averia' => $averia,
-            'trabajo' => $trabajo,
+            'trabajo' => ( ($trabajo==null)?'':$trabajo ),
             'fecha_inicio' => $fecha_inicio,
             'fecha_fin' => $fecha_fin,
-            'parada' => $parada,
+            'parada' => ( ($parada==null)?'':$parada ),
             'estado' => $estado
         ];
 
-        $result = $falta->insert($data);
+        $result = $orden->insert($data);
         if( !$result )
             return $this->error('Error al guardar la orden '.$id);
         return $this->exito('Orden guardada',$result);
@@ -159,18 +207,12 @@ class OrdenController extends ResourceController
             'solicitante_id' => 'required',
             'centro_id' => 'required',
             'ubicacion_id' => 'required',
-            'maq_inst' => 'required',
-            'maquina_id' => 'required',
-            'instalacion_id' => 'required',
-            'averia' => 'required',
-            'trabajo' => 'required',
-            'fecha_inicio' => 'required',
-            'fecha_fin' => 'required',
-            'parada' => 'required',
+            'maq_inst' => 'required',            
+            'averia' => 'required',            
             'estado' => 'required'
         ];
         if(!$this->validate($rules)) 
-            return $this->fail($this->validator->getErrors());
+            return $this->fail($this->validator->getErrors());        
 
         $tipo = $this->request->getVar('tipo');
         $solicitante_id = $this->request->getVar('solicitante_id');
@@ -186,6 +228,13 @@ class OrdenController extends ResourceController
         $parada = $this->request->getVar('parada');
         $estado = $this->request->getVar('estado');
 
+        if(!empty($fecha_fin)){
+            $ordenTecnico = new OrdenTecnico();
+            $exists = $ordenTecnico->where('orden_id', $id)->findAll();
+            if(count($exists)==0)
+                return $this->error('No se puede cerrar la orden sin asignar ningún técnico');
+        }
+
         $orden = new Orden();
 
         $data = [
@@ -197,14 +246,38 @@ class OrdenController extends ResourceController
             'maquina_id' => $maquina_id,
             'instalacion_id' => $instalacion_id,
             'averia' => $averia,
-            'trabajo' => $trabajo,
+            'trabajo' => ( ($trabajo==null)?'':$trabajo ),
             'fecha_inicio' => $fecha_inicio,
             'fecha_fin' => $fecha_fin,
-            'parada' => $parada,
+            'parada' => ( ($parada==null)?'':$parada ),
             'estado' => $estado
         ];
 
-        $result = $falta->update($id,$data);
+        $result = $orden->update($id,$data);
+        if( !$result )
+            return $this->error('Error al guardar la orden '.$id);
+        return $this->exito('Orden guardada',$result);
+    }
+
+    public function updateEstado($id = null){
+        helper(['form']);        
+        $rules = [            
+            'estado' => 'required'
+        ];
+        if(!$this->validate($rules)) 
+            return $this->fail($this->validator->getErrors());
+        
+        $estado = $this->request->getVar('estado');         
+        $razon = $this->request->getVar('razon');        
+
+        $orden = new Orden();
+
+        $data = [            
+            'estado' => $estado,
+            'razon' => $razon
+        ];
+
+        $result = $orden->update($id,$data);
         if( !$result )
             return $this->error('Error al guardar la orden '.$id);
         return $this->exito('Orden guardada',$result);
@@ -280,7 +353,7 @@ class OrdenController extends ResourceController
         return $this->exito('Tecnico guardado', $result);
     }
 
-    public function updateTecnico($orden_id = null)
+    public function updateTecnico($id = null)
     {
         helper(['form']);
         $rules = [
@@ -309,7 +382,7 @@ class OrdenController extends ResourceController
             'minutos' => $minutos
         ];       
 
-        $result = $ordenTecnico->update($orden_id, $data);
+        $result = $ordenTecnico->update($id, $data);
         return $this->exito('Tecnico guardado', $result);
     }
 
@@ -330,17 +403,31 @@ class OrdenController extends ResourceController
 
         $sql="
             select
-                t.id,
-                p.codigo,
+                t.id,                
                 p.descripcion,
                 t.producto_id,
-                t.cantidad
+                t.cantidad,
+                ip.cantidad as picassent,
+                im.cantidad as merca,
+                it.cantidad as teruel
             from
                 orden_productos t
                 left join
                 productos p
                 on
                     p.id=t.producto_id
+                left join
+                inventario ip
+                on
+                    ip.producto_id=p.id and ip.centro_id=1
+                left join
+                inventario im
+                on
+                    im.producto_id=p.id and im.centro_id=2
+                left join
+                inventario it
+                on
+                    it.producto_id=p.id and it.centro_id=3
             where
                 t.orden_id = ?
         ";
@@ -369,11 +456,11 @@ class OrdenController extends ResourceController
         if( $cantidad < 0 )
             return $this->error('La cantidad no pueden ser menor que 0 y es '.$cantidad);
 
-        $ordenProducto = new OrdenTecnico();
+        $ordenProducto = new OrdenProducto();
 
         $data = [
             'orden_id' => $orden_id,
-            'producto_id' => $user_id,            
+            'producto_id' => $producto_id,            
             'cantidad' => $cantidad
         ];       
 
@@ -381,7 +468,7 @@ class OrdenController extends ResourceController
         return $this->exito('Producto guardado', $result);
     }
 
-    public function updateProducto($orden_id = null)
+    public function updateProducto($id = null)
     {
         helper(['form']);
         $rules = [
@@ -399,15 +486,15 @@ class OrdenController extends ResourceController
         if( $cantidad < 0 )
             return $this->error('La cantidad no pueden ser menor que 0 y es '.$cantidad);
 
-        $ordenProducto = new OrdenTecnico();
+        $ordenProducto = new OrdenProducto();
 
         $data = [
             'orden_id' => $orden_id,
-            'producto_id' => $user_id,            
+            'producto_id' => $producto_id,            
             'cantidad' => $cantidad
         ];       
 
-        $result = $ordenProducto->update($orden_id, $data);
+        $result = $ordenProducto->update($id, $data);
         return $this->exito('Producto guardado', $result);
     }
 

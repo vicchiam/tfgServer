@@ -10,8 +10,10 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->db->disableForeignKeyChecks();
-        /*
+        
+        
         $this->call('UserSeeder'); 
+        
         $this->call('CentroSeeder');
         $this->call('ProductoSeeder');
         $this->call('InstalacionSeeder');
@@ -22,11 +24,12 @@ class DatabaseSeeder extends Seeder
         $this->call('MaquinaSeeder');        
         
         $this->call('OrdenSeeder');        
-        */
+        
         $this->call('OrdenTecnicosSeeder');        
         $this->call('OrdenProductosSeeder');
         
-        $this->db->enableForeignKeyChecks();        
+        $this->db->enableForeignKeyChecks();      
+          
     }
 
 }

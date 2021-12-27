@@ -73,6 +73,9 @@ class Orden extends Migration
                 'type' => 'INT',
                 'constraint' => 2
             ],
+            'razon' => [
+                'type' => 'TEXT'
+            ],
             'created_at datetime default current_timestamp',
             'updated_at datetime default current_timestamp on update current_timestamp', 
         ]);

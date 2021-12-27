@@ -97,5 +97,47 @@ class ProductoController extends ResourceController
 		]);
     }
 
+    public function showWithInventario(){
+        $db = \Config\Database::connect();
+
+        $sql="
+            select
+                p.id,                
+                p.descripcion,
+                ip.cantidad as picassent,
+                im.cantidad as merca,
+                it.cantidad as teruel,
+                ip.valor as vpicassent,
+                im.valor as vmerca,
+                it.valor as vteruel
+            from
+                productos p
+                left join
+                inventario ip
+                on
+                    ip.producto_id=p.id and ip.centro_id=1
+                left join
+                inventario im
+                on
+                    im.producto_id=p.id and im.centro_id=2
+                left join
+                inventario it
+                on
+                    it.producto_id=p.id and it.centro_id=3
+            order by
+                p.descripcion
+        ";
+
+        $query   = $db->query($sql);
+        $results = $query->getResultArray();
+
+        return $this->respondCreated([
+			'status' => 200,
+			"error" => false,
+			'messages' => 'Producto like description list',
+			'data' => $results
+		]);
+    }
+
    
 }

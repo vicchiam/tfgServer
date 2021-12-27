@@ -82,6 +82,21 @@ class UbicacionController extends ResourceController
 		]);
     }
 
+    public function showByCentro($centro_id = null)
+    {
+        $ubicacion = new Ubicacion();
+
+        return $this->respondCreated([
+			'status' => 200,
+			"error" => false,
+			'messages' => 'Ubicaciones list',
+			'data' => $ubicacion
+                ->where('centro_id',$centro_id)
+                ->orderBy('descripcion', 'asc')
+                ->findAll()
+		]);
+    }
+
     public function showByDescriptionCentro($description = null, $centro_id){
         if($description=='*'){
             $description='';

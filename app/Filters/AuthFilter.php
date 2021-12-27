@@ -42,7 +42,7 @@ class AuthFilter implements FilterInterface
         
         if(!$header) 
             return Services::response()
-                ->setJSON(['msg' => 'Token Required'])
+                ->setJSON(['status'=>401, 'msg' => 'Token Required'])
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         
         $token = explode(' ', $header)[1];
@@ -50,7 +50,7 @@ class AuthFilter implements FilterInterface
             JWT::decode($token, $key, ['HS256']);
         } catch (\Throwable $th) {
             return Services::response()
-                ->setJSON(['msg' => 'Invalid Token'])
+                ->setJSON(['status'=>401, 'msg' => 'Invalid Token'])
                 ->setStatusCode(ResponseInterface::HTTP_UNAUTHORIZED);
         }
     }

@@ -54,7 +54,7 @@ class OrdenSeeder extends Seeder
                 'solicitante_id' => static::faker()->numberBetween(1,$usuarios),
                 'centro_id' => static::faker()->numberBetween(1,$centros),
                 'ubicacion_id' => static::faker()->numberBetween(1,$ubicaciones),                
-                'maq_inst' => ($i%4==0)? 1 : 0,
+                'maq_inst' => ($i%4==0)? 2 : 1,
                 'maquina_id' => ($i%4==0)? null : static::faker()->numberBetween(1,$maquinas),
                 'instalacion_id' => ($i%4==0) ? static::faker()->numberBetween(1,$instalaciones) : null,
                 'averia' => static::faker()->paragraph(5, false),
@@ -62,7 +62,8 @@ class OrdenSeeder extends Seeder
                 'fecha_inicio' => $dateIni,
                 'fecha_fin' => $dateFin,
                 'parada' => static::faker()->numberBetween(0,480),
-                'estado' => $estado
+                'estado' => $estado,
+                'razon' => (($estado==4) ? static::faker()->paragraph(10, false) : '')
             ]);
         }
 

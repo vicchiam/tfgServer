@@ -30,7 +30,7 @@ class UserController extends ResourceController
 			"error" => false,
 			'messages' => 'User list',
 			'data' => $user
-                ->orderBy('username', 'asc')
+                ->orderBy('name', 'asc')
                 ->findAll()
 		]);
     }

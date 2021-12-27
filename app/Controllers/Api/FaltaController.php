@@ -38,6 +38,74 @@ class FaltaController extends ResourceController
         return $this->exito('Single Falta data', $data);
     }
 
+    public function filter(){
+        helper(['form']);
+        $rules = [                     
+            'desde' => 'required',
+            'hasta' => 'required'
+        ];
+        if(!$this->validate($rules)) 
+            return $this->fail($this->validator->getErrors());
+
+        $usuario = $this->request->getVar('usuario');
+        $centro = $this->request->getVar('centro');
+        $desde = $this->request->getVar('desde');
+        $hasta = $this->request->getVar('hasta');                
+
+        $db = \Config\Database::connect();
+
+        $where="";
+        $whereParams = [$desde, $hasta];
+
+        if($usuario != ''){
+            $where.=" and f.solicitante_id= ?";
+            $whereParams[]=$usuario;
+        }
+        if($centro != ''){
+            $where.=" and f.centro_id= ? ";
+            $whereParams[]=$centro;
+        }                   
+
+        $sql="
+            select
+                f.id,
+                f.solicitante_id,
+                (select u.name from users u where u.id=f.solicitante_id) as user_nom,
+                f.centro_id,
+                (select c.nombre from centros c where c.id=f.centro_id) as centro_nom,
+                f.created_at,
+                sum(fp.cantidad) as productos,
+                round(sum(fp.cantidad*i.valor),2) as valor
+            from
+                faltas f
+                left join
+                falta_productos fp
+                on
+                    fp.falta_id=f.id
+                left join
+                inventario i
+                on
+                    i.centro_id=f.centro_id and
+                    i.producto_id=fp.producto_id
+            where
+                f.created_at >= ? and
+                f.created_at <= ?
+                ".$where."            
+            group by
+                f.id,
+                f.solicitante_id,                
+                f.centro_id,                
+                f.created_at
+            order by
+                f.created_at desc
+            limit 50
+        ";
+        $query   = $db->query($sql, $whereParams);
+        $results = $query->getResultArray();
+
+        return $this->exito('Listado de faltas filtradas', $results);
+    }
+
     /**
      * Return a new resource object, with default properties
      *
@@ -130,14 +198,122 @@ class FaltaController extends ResourceController
 
     public function showProductos($id = null)
     {
-        $faltaProducto = new FaltaProducto();
 
-        $data = $faltaProducto
-            ->where('falta_id',$id)
-            ->orderBy('created_at')
-            ->findAll();
+        $db = \Config\Database::connect();
 
-        return $this->exito('Listado de productos de la falta '.$id, $data);
+        $sql="
+        select
+            t.id,                
+            p.descripcion,
+            t.producto_id,
+            t.cantidad,
+            round((t.cantidad * i.valor),1) as valor,
+            ip.cantidad as picassent,
+            im.cantidad as merca,
+            it.cantidad as teruel,
+            ip.valor as vpicassent,
+            im.valor as vmerca,
+            it.valor as vteruel
+        from
+            falta_productos t
+            inner join
+            faltas f
+            on
+                f.id=t.falta_id
+            left join
+            productos p
+            on
+                p.id=t.producto_id
+            left join
+            inventario ip
+            on
+                ip.producto_id=p.id and ip.centro_id=1
+            left join
+            inventario im
+            on
+                im.producto_id=p.id and im.centro_id=2
+            left join
+            inventario it
+            on
+                it.producto_id=p.id and it.centro_id=3
+            left join
+            inventario i
+            on
+                i.producto_id=p.id and i.centro_id=f.centro_id
+        where
+            t.falta_id = ?
+        ";
+        $query   = $db->query($sql, $id);
+        $results = $query->getResultArray();
+
+        return $this->exito('Listado de prodcuto de la falta '.$id, $results);
+    }
+
+    public function save()
+    {
+        $json = json_decode(file_get_contents('php://input'), true);
+
+        if($json["id"]==0){
+            $falta = new Falta();
+            $data = [
+                'solicitante_id' => $json["solicitante_id"],
+                'centro_id' => $json["centro_id"]
+            ];
+            $result = $falta->insert($data);
+
+            foreach($json["productos"] as $p){
+                $faltaProducto = new FaltaProducto();
+                $data = [
+                    'falta_id' => $result,
+                    'producto_id' => $p["producto_id"],
+                    'cantidad' => $p["cantidad"]
+                ];
+                $faltaProducto->insert($data);
+            }
+
+            return $this->exito('Producto guardado', $result);
+        }
+        else{            
+            $falta = new Falta();
+            $data = [
+                'solicitante_id' => $json["solicitante_id"],
+                'centro_id' => $json["centro_id"]
+            ];
+            $result = $falta->update($json["id"],$data);
+
+            $faltaProducto = new FaltaProducto();
+
+            $productos = $faltaProducto->where('falta_id',$json["id"])-> findAll();
+
+            $ids = array();
+            foreach($json["productos"] as $p){
+                if($p["id"]==0){//Es nuevo
+                    $data = [
+                        'falta_id' => $json["id"],
+                        'producto_id' => $p["producto_id"],
+                        'cantidad' => $p["cantidad"]
+                    ];
+                    $res = $faltaProducto->insert($data);                    
+                }
+                else{//existe
+                    $ids[]=$p["id"];
+                    $data = [                        
+                        'producto_id' => $p["producto_id"],
+                        'cantidad' => $p["cantidad"]
+                    ];
+                    $faltaProducto->update($p["id"],$data);
+                }
+            }
+
+            
+
+            foreach($productos as $p){
+                if(!in_array($p["id"],$ids)){
+                    $faltaProducto->delete($p["id"]);
+                }
+            }
+            return $this->exito('Producto guardado', $result);
+        }
     }
 
     public function addProducto()

@@ -5,6 +5,8 @@ namespace App\Models;
 use CodeIgniter\Model;
 
 /*
+    Tipo
+    1 -> Correctivo, 2-> Preventivo, 3-> Movimiento, 4 -> Mejora
     Estados
     0-> Pendiente , 1-> Iniciada, 2-> Finalizada, 3-> Validada, 4-> Rechazada, 99-> Descartada  
 */
@@ -32,7 +34,8 @@ class Orden extends Model
         'fecha_inicio',
         'fecha_fin',
         'parada',
-        'estado'
+        'estado',
+        'razon'
     ];
 
     // Dates

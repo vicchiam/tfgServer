@@ -19,7 +19,7 @@ class OrdenTecnicosSeeder extends Seeder
         $ordenes = count($orden->findAll());
 
         $user = new User();
-        $users = count($user->where('type','2')->findAll());
+        $users = count($user->findAll());
 
         for($i=0; $i<100; $i++){
             $model->insert([

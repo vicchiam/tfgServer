@@ -22,6 +22,11 @@ class Users extends Migration
                 'unsigned' => true,
                 'auto_increment' => true
             ],
+            'centro_id' => [
+                'type' => 'INT',
+                'constraint' => 5,
+                'unsigned' => true
+            ],
             'username' => [
                 'type' => 'VARCHAR',
                 'constraint' => 50,
@@ -47,6 +52,13 @@ class Users extends Migration
             'updated_at datetime default current_timestamp on update current_timestamp', 
         ]);
         $this->forge->addKey('id', true);
+        $this->forge->addForeignKey(
+            'centro_id',
+            'centros',
+            'id',
+            'CASCADE',
+            'CASCADE'
+        );
         $this->forge->createTable('users');
     }
 

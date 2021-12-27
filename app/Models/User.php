@@ -3,7 +3,7 @@
 /*
     php spark make:model (name)
 
-    type (0,Administrador), (1,Operario), (2,Tecnico)
+    type (1,Administrador), (2,Operario), (3,Tecnico)
 */
 
 namespace App\Models;
@@ -21,6 +21,7 @@ class User extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
+        'centro_id',
         'username',
         'name',
         'email',
@@ -54,9 +55,6 @@ class User extends Model
 
     protected function hiddenPassword(array $data){        
 
-        if($data['method']=='find'){
-            unset($data['data']['password']);
-        }
         if($data['method']=='first'){
             unset($data['password']);
         }

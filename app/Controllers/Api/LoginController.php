@@ -15,24 +15,41 @@ class LoginController extends ResourceController
      */
     public function index()
     {
+
         helper(['form']);
         $rules = [
             'username' => 'required',
             'password' => 'required'
         ];
+
         if(!$this->validate($rules)) 
-            return $this->fail($this->validator->getErrors());
+            return $this->respondCreated([
+                'status' => 500,
+                'error' => true,
+                'messages' => join(' ',$this->validator->getErrors()),
+                'data' => []
+            ]);            
 
         $model = new User();
         $user = $model
             ->where("username", $this->request->getVar('username'))
             ->first();
         if(!$user) 
-            return $this->failNotFound('Email Not Found');
+            return $this->respondCreated([
+                'status' => 500,
+                'error' => true,
+                'messages' => 'User not found',
+                'data' => []
+        ]);          
  
         $verify = password_verify($this->request->getVar('password'), $user['password']);
         if(!$verify) 
-            return $this->fail('Wrong Password');
+            return $this->respondCreated([
+                'status' => 500,
+                'error' => true,
+                'messages' => 'Wrong password',
+                'data' => []
+            ]);
  
         $key = getenv('JWT_TOKEN_SECRET');
         $time = time();
@@ -44,6 +61,8 @@ class LoginController extends ResourceController
         );
  
         $token = JWT::encode($payload, $key);
+
+        $user['password']='';
 
         $data = [
             'user' => $user,

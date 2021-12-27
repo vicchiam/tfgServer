@@ -55,6 +55,21 @@ class MaquinaController extends ResourceController
         ]);
     }
 
+    public function showByUbicacion($ubicacion_id)
+    {
+        $maquina = new Maquina();
+
+        return $this->respondCreated([
+			'status' => 200,
+			"error" => false,
+			'messages' => 'Maquina list',
+			'data' => $maquina
+                ->where('ubicacion_id',$ubicacion_id)
+                ->orderBy('descripcion', 'asc')
+                ->findAll()
+		]);
+    }
+
     public function showByDescription($description = null){
         $db = \Config\Database::connect();
 
